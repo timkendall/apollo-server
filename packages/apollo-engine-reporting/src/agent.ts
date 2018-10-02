@@ -80,7 +80,8 @@ export interface EngineReportingOptions<TContext> {
   // a filter function to exclude specific errors from being reported by
   // returning null, or you can mask certain details of the error and return the
   // error to be reported.
-  filterErrors?: (err: GraphQLError) => GraphQLError | null;
+  // If set to 'true' instead of a function, it will mask the error details.
+  filterErrors?: ((err: GraphQLError) => GraphQLError | null) | boolean;
 // A human readable name to tag this variant of a schema (i.e. staging, EU)
   schemaTag?: string;
   //Creates the client information for operation traces.
