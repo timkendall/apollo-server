@@ -77,11 +77,12 @@ export interface EngineReportingOptions<TContext> {
   // Sends the trace report immediately. This options is useful for stateless environments
   sendReportsImmediately?: boolean;
   // By default, all errors get reported to Engine servers. You can specify a
-  // a filter function to exclude specific errors from being reported by
-  // returning null, or you can mask certain details of the error and return the
-  // error to be reported.
-  // If set to 'true' instead of a function, it will mask the error details.
-  filterErrors?: ((err: GraphQLError) => GraphQLError | null) | boolean;
+  // a filter function to exclude specific errors from being reported by returning
+  // an explicit `null`, or you can mask certain details of the error by modifying
+  // it and returning the modified error.
+  rewriteError?: (err: GraphQLError) => GraphQLError | null;
+  // To remove the error message from traces, set this to `true`. Defaults to `false`.
+  maskErrorDetails?: boolean;
   // A human readable name to tag this variant of a schema (i.e. staging, EU)
   schemaTag?: string;
   //Creates the client information for operation traces.

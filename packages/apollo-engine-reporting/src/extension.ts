@@ -297,10 +297,10 @@ export class EngineReportingExtension<TContext = any>
 
     errors.forEach(err => {
       // In terms of reporting, errors can be re-written by the user by
-      // utilizing the `filterErrors` parameter.  This allows changing
+      // utilizing the `rewriteError` parameter.  This allows changing
       // the message or stack to remove potentially sensitive information.
       // Returning `null` will result in the error not being reported at all.
-      const errorForReporting = this.filterErrors(err);
+      const errorForReporting = this.rewriteError(err);
 
       if (errorForReporting === null) {
         return;
@@ -310,7 +310,7 @@ export class EngineReportingExtension<TContext = any>
     });
   }
 
-  private filterErrors(
+  private rewriteError(
     err: GraphQLError,
   ): GraphQLErrorOrMaskedErrorObject | null {
     // (DEPRECATE)
@@ -318,10 +318,10 @@ export class EngineReportingExtension<TContext = any>
     // introduced by https://github.com/apollographql/apollo-server/pull/1615.
     // Interesting, the implementation of that feature didn't actually
     // accomplish what the requestor had desired.  This functionality is now
-    // being superceded by the `filterErrors` function, which is a more dynamic
+    // being superceded by the `rewriteError` function, which is a more dynamic
     // implementation which multiple Engine users have been interested in.
     // When this `maskErrorDetails` is officially deprecated, this
-    // `filterErrors` method can be changed to return `GraphQLError | null`,
+    // `rewriteError` method can be changed to return `GraphQLError | null`,
     // and as noted in its definition, `GraphQLErrorOrMaskedErrorObject` can be
     // removed.
     if (this.options.maskErrorDetails) {
@@ -330,8 +330,8 @@ export class EngineReportingExtension<TContext = any>
       };
     }
 
-    if (typeof this.options.filterErrors === 'function') {
-      // Before passing the error to the user-provided `filterErrors` function,
+    if (typeof this.options.rewriteError === 'function') {
+      // Before passing the error to the user-provided `rewriteError` function,
       // we'll make a shadow copy of the error so the user is free to change
       // the object as they see fit.
 
@@ -368,7 +368,7 @@ export class EngineReportingExtension<TContext = any>
           }
         });
 
-      return this.options.filterErrors(clonedError);
+      return this.options.rewriteError(clonedError);
     }
     return err;
   }

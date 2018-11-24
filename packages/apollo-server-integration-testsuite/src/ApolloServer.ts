@@ -717,14 +717,14 @@ export function testApolloServer<AS extends ApolloServerBase>(
             apolloFetch = createApolloFetch({ uri });
           };
 
-          describe('filterErrors', () => {
+          describe('rewriteError', () => {
             it('new error', async () => {
               throwError.mockImplementationOnce(() => {
-                throw new Error('filterErrors nope');
+                throw new Error('rewriteError nope');
               });
 
               await setupApolloServerAndFetchPair({
-                filterErrors: () => new GraphQLError('rewritten'),
+                rewriteError: () => new GraphQLError('rewritten'),
               });
 
               const result = await apolloFetch({
@@ -734,7 +734,7 @@ export function testApolloServer<AS extends ApolloServerBase>(
                 error: null,
               });
               expect(result.errors).toBeDefined();
-              expect(result.errors[0].message).toEqual('filterErrors nope');
+              expect(result.errors[0].message).toEqual('rewriteError nope');
               expect(throwError).toHaveBeenCalledTimes(1);
 
               const reports = await engineServer.promiseOfReports;
@@ -752,11 +752,11 @@ export function testApolloServer<AS extends ApolloServerBase>(
 
             it('modified error', async () => {
               throwError.mockImplementationOnce(() => {
-                throw new Error('filterErrors mod nope');
+                throw new Error('rewriteError mod nope');
               });
 
               await setupApolloServerAndFetchPair({
-                filterErrors: err => {
+                rewriteError: err => {
                   err.message = 'modified';
                   return err;
                 },
@@ -769,7 +769,7 @@ export function testApolloServer<AS extends ApolloServerBase>(
                 error: null,
               });
               expect(result.errors).toBeDefined();
-              expect(result.errors[0].message).toEqual('filterErrors mod nope');
+              expect(result.errors[0].message).toEqual('rewriteError mod nope');
               expect(throwError).toHaveBeenCalledTimes(1);
 
               const reports = await engineServer.promiseOfReports;
@@ -793,11 +793,11 @@ export function testApolloServer<AS extends ApolloServerBase>(
 
             it('nulled error', async () => {
               throwError.mockImplementationOnce(() => {
-                throw new Error('filterErrors null nope');
+                throw new Error('rewriteError null nope');
               });
 
               await setupApolloServerAndFetchPair({
-                filterErrors: () => null,
+                rewriteError: () => null,
               });
 
               const result = await apolloFetch({
@@ -808,7 +808,7 @@ export function testApolloServer<AS extends ApolloServerBase>(
               });
               expect(result.errors).toBeDefined();
               expect(result.errors[0].message).toEqual(
-                'filterErrors null nope',
+                'rewriteError null nope',
               );
               expect(throwError).toHaveBeenCalledTimes(1);
 
