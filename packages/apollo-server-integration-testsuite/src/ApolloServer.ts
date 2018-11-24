@@ -28,7 +28,7 @@ import {
   VERSION,
 } from 'apollo-link-persisted-queries';
 
-import { createApolloFetch } from 'apollo-fetch';
+import { createApolloFetch, ApolloFetch } from 'apollo-fetch';
 import {
   AuthenticationError,
   UserInputError,
@@ -679,6 +679,179 @@ export function testApolloServer<AS extends ApolloServerBase>(
 
           expect(trace.root!.child![0].error![0].message).toMatch(/nope/);
           expect(trace.root!.child![0].error![0].message).not.toMatch(/masked/);
+        });
+
+        describe('validation > engine > error munging', () => {
+          let throwError: jest.Mock;
+          let apolloFetch: ApolloFetch;
+
+          beforeEach(async () => {
+            throwError = jest.fn();
+          });
+
+          const setupApolloServerAndFetchPair = async (
+            engineOptions: Partial<EngineReportingOptions<any>> = {},
+          ) => {
+            const { url: uri } = await createApolloServer({
+              typeDefs: gql`
+                type Query {
+                  error: String
+                }
+              `,
+              resolvers: {
+                Query: {
+                  error: () => {
+                    throwError();
+                  },
+                },
+              },
+              engine: {
+                ...engineServer.engineOptions(),
+                apiKey: 'service:my-app:secret',
+                maxUncompressedReportSize: 1,
+                ...engineOptions,
+              },
+              debug: true,
+            });
+
+            apolloFetch = createApolloFetch({ uri });
+          };
+
+          describe('filterErrors', () => {
+            it('new error', async () => {
+              throwError.mockImplementationOnce(() => {
+                throw new Error('filterErrors nope');
+              });
+
+              await setupApolloServerAndFetchPair({
+                filterErrors: () => new GraphQLError('rewritten'),
+              });
+
+              const result = await apolloFetch({
+                query: `{error}`,
+              });
+              expect(result.data).toEqual({
+                error: null,
+              });
+              expect(result.errors).toBeDefined();
+              expect(result.errors[0].message).toEqual('filterErrors nope');
+              expect(throwError).toHaveBeenCalledTimes(1);
+
+              const reports = await engineServer.promiseOfReports;
+              expect(reports.length).toBe(1);
+              const trace = Object.values(reports[0].tracesPerQuery)[0]
+                .trace[0];
+              expect(trace.root.error).toMatchObject([
+                {
+                  json: '{"message":"rewritten"}',
+                  message: 'rewritten',
+                  location: [],
+                },
+              ]);
+            });
+
+            it('modified error', async () => {
+              throwError.mockImplementationOnce(() => {
+                throw new Error('filterErrors mod nope');
+              });
+
+              await setupApolloServerAndFetchPair({
+                filterErrors: err => {
+                  err.message = 'modified';
+                  return err;
+                },
+              });
+
+              const result = await apolloFetch({
+                query: `{error}`,
+              });
+              expect(result.data).toEqual({
+                error: null,
+              });
+              expect(result.errors).toBeDefined();
+              expect(result.errors[0].message).toEqual('filterErrors mod nope');
+              expect(throwError).toHaveBeenCalledTimes(1);
+
+              const reports = await engineServer.promiseOfReports;
+              expect(reports.length).toBe(1);
+              const trace = Object.values(reports[0].tracesPerQuery)[0]
+                .trace[0];
+              expect(trace.root.error).toMatchObject([
+                {
+                  json:
+                    '{"message":"modified","locations":[{"line":1,"column":2}]}',
+                  message: 'modified',
+                  location: [
+                    {
+                      column: 2,
+                      line: 1,
+                    },
+                  ],
+                },
+              ]);
+            });
+
+            it('nulled error', async () => {
+              throwError.mockImplementationOnce(() => {
+                throw new Error('filterErrors null nope');
+              });
+
+              await setupApolloServerAndFetchPair({
+                filterErrors: () => null,
+              });
+
+              const result = await apolloFetch({
+                query: `{error}`,
+              });
+              expect(result.data).toEqual({
+                error: null,
+              });
+              expect(result.errors).toBeDefined();
+              expect(result.errors[0].message).toEqual(
+                'filterErrors null nope',
+              );
+              expect(throwError).toHaveBeenCalledTimes(1);
+
+              const reports = await engineServer.promiseOfReports;
+              expect(reports.length).toBe(1);
+              const trace = Object.values(reports[0].tracesPerQuery)[0]
+                .trace[0];
+              expect(trace.root.error).toStrictEqual([]);
+            });
+          });
+
+          it('maskErrorDetails', async () => {
+            throwError.mockImplementationOnce(() => {
+              throw new Error('maskErrorDetails nope');
+            });
+
+            await setupApolloServerAndFetchPair({
+              maskErrorDetails: true,
+            });
+
+            const result = await apolloFetch({
+              query: `{error}`,
+            });
+
+            expect(result.data).toEqual({
+              error: null,
+            });
+            expect(result.errors).toBeDefined();
+            expect(result.errors[0].message).toEqual('maskErrorDetails nope');
+
+            expect(throwError).toHaveBeenCalledTimes(1);
+
+            const reports = await engineServer.promiseOfReports;
+            expect(reports.length).toBe(1);
+            const trace = Object.values(reports[0].tracesPerQuery)[0].trace[0];
+
+            expect(trace.root.error).toMatchObject([
+              {
+                json: '{"message":"<masked>"}',
+                message: '<masked>',
+              },
+            ]);
+          });
         });
       });
 
