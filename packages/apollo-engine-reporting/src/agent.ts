@@ -82,7 +82,7 @@ export interface EngineReportingOptions<TContext> {
   // error to be reported.
   // If set to 'true' instead of a function, it will mask the error details.
   filterErrors?: ((err: GraphQLError) => GraphQLError | null) | boolean;
-// A human readable name to tag this variant of a schema (i.e. staging, EU)
+  // A human readable name to tag this variant of a schema (i.e. staging, EU)
   schemaTag?: string;
   //Creates the client information for operation traces.
   generateClientInfo?: GenerateClientInfo<TContext>;
