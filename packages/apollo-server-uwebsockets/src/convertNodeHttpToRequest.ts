@@ -5,16 +5,15 @@ import { Request, Headers } from 'apollo-server-env';
 export function convertNodeHttpToRequest(req: HttpRequest): Request {
   const headers = new Headers();
 
-  // https://github.com/uNetworking/uWebSockets.js/issues/70
-  // Object.keys(req.headers).forEach(key => {
-  //   const values = req.headers[key]!;
 
-  //   if (Array.isArray(values)) {
-  //     values.forEach(value => headers.append(key, value));
-  //   } else {
-  //     headers.append(key, values);
-  //   }
-  // });
+  // https://github.com/uNetworking/uWebSockets.js/blob/master/examples/Headers.js
+
+  req.forEach((k, v) => {
+    if (Array.isArray(v))
+      v.forEach(value => headers.append(k, value));
+    else 
+      headers.append(k, v);
+  });
 
   return new Request(req.getQuery(), {
     headers,

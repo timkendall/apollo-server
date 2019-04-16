@@ -8,6 +8,7 @@ description: Setting up Apollo Server with uWebSockets.js
 
 This is the [uWebSockets.js](https://github.com/uNetworking/uWebSockets.js) integration for the Apollo community GraphQL Server. [Read the docs.](https://www.apollographql.com/docs/apollo-server/) [Read the CHANGELOG.](https://github.com/apollographql/apollo-server/blob/master/CHANGELOG.md)
 
+
 ## uWebSockets.js
 
 This example demonstrates how to setup a simple microservice, using uWebSosckets.js, that
@@ -68,4 +69,15 @@ app.listen(3000, (token) => {
 browser to run queries using
 [`graphql-playground`](https://github.com/prismagraphql/graphql-playground),
 or send GraphQL requests directly to the same URL.
+
+
+
+## Contribute
+
+Clone the apollo-server repository
+npm install
+cd apollo-server/packages/apollo-server-uwebsockets
+npm pack
+
+
 
