@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start_uws": "node index_uws.js",
+    "start_express": "node index_express.js",
+    "bench": "k6 run k6bench.js"
   },
   "license": "ISC",
-   "dependencies": {
-   	"apollo-server-uwebsockets": "../",
+  "dependencies": {
+    "apollo-server-uwebsockets-todel": "^2.4.8",
+    "apollo-server-express": "^2.4.6",
     "uWebSockets.js": "uNetworking/uWebSockets.js#v15.10.0"
   }
 }

@@ -1,5 +1,5 @@
 const { App } = require('uWebSockets.js')
-const { ApolloServer, makeExecutableSchema } = require('apollo-server-uwebsockets')
+const { ApolloServer, makeExecutableSchema } = require('apollo-server-uwebsockets-todel')
 
 const schema = makeExecutableSchema({
   typeDefs: `
