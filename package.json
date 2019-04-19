@@ -60,7 +60,8 @@
     "apollo-server-plugin-base": "file:packages/apollo-server-plugin-base",
     "apollo-server-testing": "file:packages/apollo-server-testing",
     "apollo-tracing": "file:packages/apollo-tracing",
-    "graphql-extensions": "file:packages/graphql-extensions"
+    "graphql-extensions": "file:packages/graphql-extensions",
+    "uWebSockets.js": "uNetworking/uWebSockets.js#v15.10.0"
   },
   "devDependencies": {
     "@types/async-retry": "1.2.1",

@@ -1,6 +1,6 @@
 {
-  "name": "apollo-server-uwebsockets",
-  "version": "2.4.6",
+  "name": "apollo-server-uwebsockets-todel",
+  "version": "2.4.8",
   "description": "Production-ready Node.js GraphQL server for uWebSockets.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,9 +25,9 @@
   "dependencies": {
     "@apollographql/graphql-playground-html": "^1.6.6",
     "accept": "^3.0.2",
-    "apollo-server-core": "file:../apollo-server-core",
+    "apollo-server-core": "^2.4.8",
     "raw-body": "^2.3.3",
-    "uWebSockets.js": "uNetworking/uWebSockets.js#v15.2.0"
+    "uWebSockets.js": "uNetworking/uWebSockets.js#v15.10.0"
   },
   "devDependencies": {
     "apollo-server-integration-testsuite": "file:../apollo-server-integration-testsuite",
